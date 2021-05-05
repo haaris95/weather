@@ -171,7 +171,8 @@ if len(place) != 0:
     url = "http://api.openweathermap.org/data/2.5/forecast?q=" + place + "&appid=4ae36ab46c25e5e4911800d4ec047498"
 
     cod = requests.get(url).json()['cod']
-    if cod != 200:
+    print(cod)
+    if cod != '200':
         st.write("Typo in City name. Please check")
     else:
         processing(url, g_type, unit)
