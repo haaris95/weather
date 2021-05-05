@@ -6,7 +6,7 @@ from pytz import timezone
 import pyowm
 import streamlit as st
 from matplotlib import dates
-from datetime import datetime
+from datetime import datetime, timedelta
 from matplotlib import pyplot as plt
 import requests
 import numpy as np
@@ -128,8 +128,9 @@ def weather_changes(forcaster):
     
 
 def otherDetails(forcaster):
-    now = datetime.now()
-    current_weather = forcaster.get_weather_at(now)
+    current_time = datetime.now()
+    tomorrow = current_time + timedelta(1)
+    current_weather = forcaster.get_weather_at(tomorrow)
     st.title("Cloud coverage and wind speed")
     wind_speed = round(current_weather.wind(unit = 'miles_hour')['speed'],2)
     cloud = current_weather.clouds
@@ -169,19 +170,13 @@ g_type = st.selectbox("Select Graph Type",("Line Graph","Bar Graph"))
 if len(place) != 0:
     url = "http://api.openweathermap.org/data/2.5/forecast?q=" + place + "&appid=4ae36ab46c25e5e4911800d4ec047498"
 
-
-    processing(url, g_type, unit)
-    forcaster = mgr.forecast_at_place(place, '3h')
-    weather_changes(forcaster)
-    otherDetails(forcaster)
-    timings(place, url)
-now = datetime.now()
-local_now = now.astimezone()
-local_tz = local_now.tzinfo
-local_tzname = local_tz.tzname(local_now)
-
-
-
-
-
-
+    cod = requests.get(url).json()['cod']
+    if cod != 200:
+        st.write("Typo in City name. Please check")
+    else:
+        processing(url, g_type, unit)
+        forcaster = mgr.forecast_at_place(place, '3h')
+        weather_changes(forcaster)
+        otherDetails(forcaster)
+        timings(place, url)
+    
